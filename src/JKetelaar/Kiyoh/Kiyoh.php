@@ -15,7 +15,7 @@ use JKetelaar\Kiyoh\Models\Company;
  */
 class Kiyoh {
 
-	const RECENT_COMPANY_REVIEWS_URL = 'https://www.kiyoh.nl/xml/recent_company_reviews.xml?connectorcode=%s&company_id=%s';
+	const RECENT_COMPANY_REVIEWS_URL = 'https://www.kiyoh.nl/xml/recent_company_reviews.xml?connectorcode=%s&company_id=%s&page=%s';
 
 	/**
 	 * @var string
@@ -44,13 +44,15 @@ class Kiyoh {
 		$this->client        = new Client();
 	}
 
-	/**
-	 * Gets the 10 latest reviews
-	 *
-	 * @return Review[]
-	 */
-	public function getReviews(){
-		return $this->parseReviews($this->getContent());
+    /**
+     * Gets the 10 latest reviews
+     *
+     * @param int $page
+     *
+     * @return \JKetelaar\Kiyoh\Models\Review[]
+     */
+	public function getReviews($page = 1){
+		return $this->parseReviews($this->getContent($page));
 	}
 
     /**
@@ -62,14 +64,16 @@ class Kiyoh {
 	    return $this->parseCompany($this->getContent());
     }
 
-	/**
-	 * @return string
-	 */
-	public function getContent() {
+    /**
+     * @param int $page
+     *
+     * @return string
+     */
+	public function getContent($page = 1) {
 		return
             $this->getClient()->request(
                 'GET',
-                $this->getRecentCompanyReviewsURL()
+                $this->getRecentCompanyReviewsURL($page)
             )
             ->getBody()
             ->getContents()
@@ -83,16 +87,19 @@ class Kiyoh {
 		return $this->client;
 	}
 
-	/**
-	 * Returns parsed Recent Company Reviews URL
-	 *
-	 * @return string
-	 */
-	public function getRecentCompanyReviewsURL() {
+    /**
+     * Returns parsed Recent Company Reviews URL
+     *
+     * @param int $page
+     *
+     * @return string
+     */
+	public function getRecentCompanyReviewsURL($page = 1) {
 		return sprintf(
 		    self::RECENT_COMPANY_REVIEWS_URL,
             $this->connectorCode,
-            $this->companyCode
+            $this->companyCode,
+            $page
         );
 	}
 
@@ -131,8 +138,8 @@ class Kiyoh {
                 $date = new \DateTime($this->elementToString( $rCustomer->date ));
                 $totalScore = $this->elementToString( $r->totalScore );
                 $recommended = $this->elementToString( $r->recommended );
-                $pros = $this->elementToString( $r->pros );
-                $cons = $this->elementToString( $r->cons );
+                $pros = $this->elementToString( $r->positive );
+                $cons = $this->elementToString( $r->negative );
 
                 $reviewsArray[] = new Review(
                     $id,
