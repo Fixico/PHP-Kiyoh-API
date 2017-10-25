@@ -124,7 +124,6 @@ class Kiyoh {
                     $this->elementToString( $rCustomer->name ),
                     $this->elementToString( $rCustomer->place )
                 );
-
                 $questions  = [];
                 $rQuestions = $r->questions->question;
                 foreach ( $rQuestions as $q ) {
@@ -136,7 +135,7 @@ class Kiyoh {
 
                 $id = $this->elementToString( $r->id );
                 $date = new \DateTime($this->elementToString( $rCustomer->date ));
-                $totalScore = $this->elementToString( $r->totalScore );
+                $totalScore = $this->elementToString( $r->total_score );
                 $recommended = $this->elementToString( $r->recommended );
                 $pros = $this->elementToString( $r->positive );
                 $cons = $this->elementToString( $r->negative );
